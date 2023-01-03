@@ -1,10 +1,12 @@
-//! A Rust library mapping
-//! Crypto exchange APIs to
-//! Rust. Currently supported APIs are:
-//! Woo Exchange (https://woo.org/)
+//! A Rust library aiming to serve as an SDK for programmatic
+//! trading of Cryptocurrencies on various exchanges (in-dev).
+//!
+//! Currently supported Exchanges are:
+//!
+//! - `Woo Exchange` <https://woo.org/>
 
 pub mod client;
-mod woo;
+pub mod woo;
 
 
 #[test]
