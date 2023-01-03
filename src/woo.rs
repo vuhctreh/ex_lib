@@ -3,8 +3,6 @@ mod http;
 mod v1;
 
 use std::fmt::{Display, Formatter};
-use std::{format, todo};
-use std::time::SystemTime;
 use async_trait::async_trait;
 
 /// Struct for interacting with the Woo Exchange
@@ -36,7 +34,13 @@ pub trait WooAuth {
 }
 
 #[async_trait]
-pub trait EmitV1 {
+pub trait Emit {
     async fn exchange_information(&self, symbol: String) -> String;
     async fn funding_rate_history(&self, symbol: String, start_t: Option<u128>, end_t: Option<u128>, page: Option<u128>) -> String;
+    async fn token_config(&self) -> String;
+}
+
+#[async_trait]
+pub trait Authenticate {
+    async fn get_v1_auth(&self, url: String, query: String) -> Result<String, reqwest::Error>;
 }

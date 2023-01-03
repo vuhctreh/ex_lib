@@ -1,4 +1,3 @@
-use std::time::SystemTime;
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
 use crate::woo::{Woo, WooAuth};
