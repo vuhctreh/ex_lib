@@ -50,11 +50,3 @@ impl Authenticate for Woo {
         Ok::<String, reqwest::Error>(res)
     }
 }
-
-
-#[tokio::test]
-async fn test_http() {
-    let var = get_v1_no_auth( "/public/info/SPOT_BTC_USDT".to_string()).await;
-
-    println!("{}", var.unwrap())
-}
