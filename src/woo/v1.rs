@@ -1,4 +1,3 @@
-use std::time::SystemTime;
 use crate::woo::{Authenticate, Emit, Woo};
 use crate::woo::http::get_v1_no_auth;
 use async_trait::async_trait;
@@ -42,6 +41,20 @@ impl Emit for Woo {
         let url: String = format!("{}/client/token", V1_BASE_URL);
 
         self.get_v1_auth(url, "".to_string()).await.unwrap()
+    }
+
+    async fn orderbook_snapshot(&self, symbol: String, max_level: Option<u128>) -> String {
+        let mut url: String = format!("{}/orderbook/{}", V1_BASE_URL, symbol);
+
+        let mut query: String = "".to_string();
+
+        if max_level.is_some() {
+            query.push_str(&format!("?max_level={}", max_level.unwrap()));
+        }
+
+        url.push_str(&query);
+
+        self.get_v1_auth(url, query).await.unwrap()
     }
 }
 

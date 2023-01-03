@@ -37,5 +37,5 @@ async fn test_client() {
 
     //println!("{}", woo.funding_rate_history("PERP_BTC_USDT".to_string(), None, None, None).await)
 
-    println!("{}", woo.token_config().await)
+    println!("{}", woo.orderbook_snapshot("SPOT_BTC_USDT".to_string(), None).await)
 }

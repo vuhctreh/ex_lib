@@ -38,6 +38,7 @@ pub trait Emit {
     async fn exchange_information(&self, symbol: String) -> String;
     async fn funding_rate_history(&self, symbol: String, start_t: Option<u128>, end_t: Option<u128>, page: Option<u128>) -> String;
     async fn token_config(&self) -> String;
+    async fn orderbook_snapshot(&self, symbol: String, max_level: Option<u128>) -> String;
 }
 
 #[async_trait]
