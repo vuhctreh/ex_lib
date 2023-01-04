@@ -44,12 +44,27 @@ impl Emit for Woo {
     }
 
     async fn orderbook_snapshot(&self, symbol: String, max_level: Option<u128>) -> String {
-        let mut url: String = format!("{}/orderbook/{}", V1_BASE_URL, symbol);
+        let mut url: String = format!("{}/orderbook/{}?", V1_BASE_URL, symbol);
 
         let mut query: String = "".to_string();
 
         if max_level.is_some() {
-            query.push_str(&format!("?max_level={}", max_level.unwrap()));
+            query.push_str(&format!("max_level={}", max_level.unwrap()));
+        }
+
+        url.push_str(&query);
+
+        self.get_v1_auth(url, query).await.unwrap()
+    }
+
+    // Make type an ENUM
+    async fn kline(&self, symbol: String, timeframe: String, limit: Option<u128>) -> String {
+        let mut url: String = format!("{}/kline?", V1_BASE_URL);
+
+        let mut query: String = format!("symbol={}&type={}", symbol, timeframe);
+
+        if limit.is_some() {
+            query.push_str(&format!("&limit={}", limit.unwrap()));
         }
 
         url.push_str(&query);
