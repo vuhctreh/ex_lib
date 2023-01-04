@@ -5,11 +5,18 @@
 //!
 //! - `Woo Exchange` <https://woo.org/>
 
+use crate::client::Client;
+use crate::woo::Emit;
+
 pub mod client;
 pub mod woo;
 
+//TODO: rearrange http and auth modules so they are not visible from woo.
+#[tokio::test]
+async fn test() {
+    let client = Client::new("".to_string(), "".to_string());
 
-#[test]
-fn test() {
-    println!("Hello, world!");
+    let woo = client.to_woo();
+
+    println!("{}", woo.send_order().await);
 }
