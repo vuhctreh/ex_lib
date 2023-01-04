@@ -9,7 +9,7 @@ static V1_BASE_URL: &str = "https://api.woo.org/v1";
 impl Emit for Woo {
 
     //TODO make return type a serde struct at some point
-    async fn exchange_information(&self, symbol: String) -> String {
+    async fn get_exchange_information(&self, symbol: String) -> String {
         let query: String = format!("{}/public/info/{}", V1_BASE_URL, symbol);
 
         match get_v1_no_auth(query).await {
@@ -19,7 +19,7 @@ impl Emit for Woo {
     }
 
     // TODO error handling for get_v1_no_auth
-    async fn funding_rate_history(&self, symbol: String, start_t: Option<u128>, end_t: Option<u128>, page: Option<u128>) -> String {
+    async fn get_funding_rate_history(&self, symbol: String, start_t: Option<u128>, end_t: Option<u128>, page: Option<u128>) -> String {
         let mut query: String = format!("{}/public/funding_rate_history?symbol={}", V1_BASE_URL, symbol);
 
         if start_t.is_some() {
@@ -37,14 +37,14 @@ impl Emit for Woo {
         get_v1_no_auth(query).await.unwrap()
     }
 
-    async fn token_config(&self) -> String {
+    async fn get_token_config(&self) -> String {
 
         let url: String = format!("{}/client/token", V1_BASE_URL);
 
         self.get_v1_auth(url, "".to_string()).await.unwrap()
     }
 
-    async fn orderbook_snapshot(&self, symbol: String, max_level: Option<u128>) -> String {
+    async fn get_orderbook_snapshot(&self, symbol: String, max_level: Option<u128>) -> String {
         let mut url: String = format!("{}/orderbook/{}?", V1_BASE_URL, symbol);
 
         let mut query: String = "".to_string();
@@ -59,7 +59,7 @@ impl Emit for Woo {
     }
 
     // Make type an ENUM
-    async fn kline(&self, symbol: String, timeframe: String, limit: Option<u128>) -> String {
+    async fn get_kline(&self, symbol: String, timeframe: String, limit: Option<u128>) -> String {
         let mut url: String = format!("{}/kline?", V1_BASE_URL);
 
         let mut query: String = format!("symbol={}&type={}", symbol, timeframe);
@@ -73,7 +73,7 @@ impl Emit for Woo {
         self.get_v1_auth(url, query).await.unwrap()
     }
 
-    async fn holding(&self) -> String {
+    async fn get_holdings(&self) -> String {
         let url: String = format!("{}/client/holding", V1_BASE_URL);
 
         self.get_v1_auth(url, "".to_string()).await.unwrap()
@@ -93,6 +93,17 @@ impl Emit for Woo {
         url.push_str(&query);
 
         self.get_v1_auth(url, query).await.unwrap()
+    }
+
+    //TODO: make order type enums
+    async fn send_order(&self) -> String {
+        let mut url: String = format!("{}/order?", V1_BASE_URL);
+
+        let query: String = "order_type=POST_ONLY&side=SELL&symbol=PERP_ETH_USDT".to_string();
+
+        url.push_str(&query);
+
+        self.post_v1_auth(url, query).await.unwrap()
     }
 }
 

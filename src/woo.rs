@@ -3,7 +3,6 @@ mod http;
 mod v1;
 
 use std::fmt::{Display, Formatter};
-use std::format;
 use async_trait::async_trait;
 
 /// Struct for interacting with the Woo Exchange
@@ -36,18 +35,20 @@ pub trait WooAuth {
 
 #[async_trait]
 pub trait Emit {
-    async fn exchange_information(&self, symbol: String) -> String;
-    async fn funding_rate_history(&self, symbol: String, start_t: Option<u128>, end_t: Option<u128>, page: Option<u128>) -> String;
-    async fn token_config(&self) -> String;
-    async fn orderbook_snapshot(&self, symbol: String, max_level: Option<u128>) -> String;
+    async fn get_exchange_information(&self, symbol: String) -> String;
+    async fn get_funding_rate_history(&self, symbol: String, start_t: Option<u128>, end_t: Option<u128>, page: Option<u128>) -> String;
+    async fn get_token_config(&self) -> String;
+    async fn get_orderbook_snapshot(&self, symbol: String, max_level: Option<u128>) -> String;
     // Make type an ENUM
-    async fn kline(&self, symbol: String, timeframe: String, limit: Option<u128>) -> String;
-    async fn holding(&self) -> String;
+    async fn get_kline(&self, symbol: String, timeframe: String, limit: Option<u128>) -> String;
+    async fn get_holdings(&self) -> String;
     async fn get_account_information(&self) -> String;
     async fn get_token_deposit_address(&self, token: String) -> String;
+    async fn send_order(&self) -> String;
 }
 
 #[async_trait]
 pub trait Authenticate {
     async fn get_v1_auth(&self, url: String, query: String) -> Result<String, reqwest::Error>;
+    async fn post_v1_auth(&self, url: String, query: String) -> Result<String, reqwest::Error>;
 }
