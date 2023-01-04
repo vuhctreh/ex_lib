@@ -25,17 +25,3 @@ impl Display for Client {
         write!(f, "key: {}, secret: {}***, type: undefined", self.key, self.secret.get(0..3).unwrap())
     }
 }
-
-#[tokio::test]
-async fn test_client() {
-
-    let client: Client = Client::new(String::from("key"), String::from("secret"));
-
-    let woo: Woo = client.to_woo();
-
-    //println!("{}", woo.exchange_information("SPOT_BTC_USDT".to_string()).await);
-
-    //println!("{}", woo.funding_rate_history("PERP_BTC_USDT".to_string(), None, None, None).await)
-
-    println!("{}", woo.orderbook_snapshot("SPOT_BTC_USDT".to_string(), None).await)
-}
