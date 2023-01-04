@@ -41,6 +41,7 @@ pub trait Emit {
     async fn orderbook_snapshot(&self, symbol: String, max_level: Option<u128>) -> String;
     // Make type an ENUM
     async fn kline(&self, symbol: String, timeframe: String, limit: Option<u128>) -> String;
+    async fn holding(&self) -> String;
 }
 
 #[async_trait]

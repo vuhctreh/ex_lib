@@ -71,5 +71,11 @@ impl Emit for Woo {
 
         self.get_v1_auth(url, query).await.unwrap()
     }
+
+    async fn holding(&self) -> String {
+        let url: String = format!("{}/client/holding", V1_BASE_URL);
+
+        self.get_v1_auth(url, "".to_string()).await.unwrap()
+    }
 }
 
