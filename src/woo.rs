@@ -3,6 +3,7 @@ mod http;
 mod v1;
 
 use std::fmt::{Display, Formatter};
+use std::format;
 use async_trait::async_trait;
 
 /// Struct for interacting with the Woo Exchange
@@ -42,6 +43,8 @@ pub trait Emit {
     // Make type an ENUM
     async fn kline(&self, symbol: String, timeframe: String, limit: Option<u128>) -> String;
     async fn holding(&self) -> String;
+    async fn get_account_information(&self) -> String;
+    async fn get_token_deposit_address(&self, token: String) -> String;
 }
 
 #[async_trait]

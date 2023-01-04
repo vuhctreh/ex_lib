@@ -4,6 +4,7 @@ use async_trait::async_trait;
 
 static V1_BASE_URL: &str = "https://api.woo.org/v1";
 
+//TODO enums for various symbols
 #[async_trait]
 impl Emit for Woo {
 
@@ -76,6 +77,22 @@ impl Emit for Woo {
         let url: String = format!("{}/client/holding", V1_BASE_URL);
 
         self.get_v1_auth(url, "".to_string()).await.unwrap()
+    }
+
+    async fn get_account_information(&self) -> String {
+        let url: String = format!("{}/client/info", V1_BASE_URL);
+
+        self.get_v1_auth(url, "".to_string()).await.unwrap()
+    }
+
+    async fn get_token_deposit_address(&self, token: String) -> String {
+        let mut url: String = format!("{}/asset/deposit?", V1_BASE_URL);
+
+        let query: String = format!("token={}", token);
+
+        url.push_str(&query);
+
+        self.get_v1_auth(url, query).await.unwrap()
     }
 }
 
