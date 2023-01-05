@@ -1,7 +1,8 @@
 use crate::woo::{Authenticate, Emit, Woo};
 use crate::woo::http::get_v1_no_auth;
 use async_trait::async_trait;
-use crate::woo::response::{ExchangeInformation, FundingRateHistory, Orderbook, ResponseWrapper, TokenConfig, TokenConfigWrapped};
+use crate::woo::enums::Timeframe;
+use crate::woo::response::{ExchangeInformation, FundingRateHistory, Kline, Orderbook, ResponseWrapper, TokenConfig, TokenConfigWrapped};
 
 static V1_BASE_URL: &str = "https://api.woo.org/v1";
 
@@ -64,22 +65,24 @@ impl Emit for Woo {
             Err(e) => panic!("{:?}", e)
         }
     }
-    //
-    // // Make type an ENUM
-    // async fn get_kline(&self, symbol: String, timeframe: String, limit: Option<u128>) -> String {
-    //     let mut url: String = format!("{}/kline?", V1_BASE_URL);
-    //
-    //     let mut query: String = format!("symbol={}&type={}", symbol, timeframe);
-    //
-    //     if limit.is_some() {
-    //         query.push_str(&format!("&limit={}", limit.unwrap()));
-    //     }
-    //
-    //     url.push_str(&query);
-    //
-    //     self.get_v1_auth(url, query).await.unwrap()
-    // }
-    //
+
+    async fn get_kline(&self, symbol: String, timeframe: Timeframe, limit: Option<u128>) -> Kline {
+        let mut url: String = format!("{}/kline?", V1_BASE_URL);
+
+        let mut query: String = format!("symbol={}&type={}", symbol, timeframe.to_string());
+
+        if limit.is_some() {
+            query.push_str(&format!("&limit={}", limit.unwrap()));
+        }
+
+        url.push_str(&query);
+
+        match self.get_v1_auth::<Kline>(url, query).await {
+            Ok(body) => body,
+            Err(e) => panic!("{:?}", e)
+        }
+    }
+
     // async fn get_holdings(&self) -> String {
     //     let url: String = format!("{}/client/holding", V1_BASE_URL);
     //

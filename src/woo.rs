@@ -2,11 +2,13 @@ mod auth;
 mod http;
 mod v1;
 mod response;
+pub mod enums;
 
 use std::fmt::{Display, Formatter};
 use async_trait::async_trait;
 use serde::de::DeserializeOwned;
-use crate::woo::response::{ExchangeInformation, FundingRateHistory, Orderbook, TokenConfig};
+use crate::woo::enums::Timeframe;
+use crate::woo::response::{ExchangeInformation, FundingRateHistory, Kline, Orderbook, TokenConfig};
 
 /// Struct for interacting with the Woo Exchange
 pub struct Woo {
@@ -42,8 +44,7 @@ pub trait Emit {
     async fn get_funding_rate_history(&self, symbol: String, start_t: Option<u128>, end_t: Option<u128>, page: Option<u128>) -> FundingRateHistory;
     async fn get_token_config(&self) -> Vec<TokenConfig>;
     async fn get_orderbook_snapshot(&self, symbol: String, max_level: Option<u128>) -> Orderbook;
-    // // Make timeframe an ENUM
-    // async fn get_kline(&self, symbol: String, timeframe: String, limit: Option<u128>) -> String;
+    async fn get_kline(&self, symbol: String, timeframe: Timeframe, limit: Option<u128>) -> Kline;
     // async fn get_holdings(&self) -> String;
     // async fn get_account_information(&self) -> String;
     // async fn get_token_deposit_address(&self, token: String) -> String;
