@@ -8,7 +8,7 @@ use std::fmt::{Display, Formatter};
 use async_trait::async_trait;
 use serde::de::DeserializeOwned;
 use crate::woo::enums::Timeframe;
-use crate::woo::response::{ExchangeInformation, FundingRateHistory, Kline, Orderbook, TokenConfig};
+use crate::woo::response::{AccountInformation, ExchangeInformation, FundingRateHistory, Kline, Orderbook, TokenConfig};
 
 /// Struct for interacting with the Woo Exchange
 pub struct Woo {
@@ -45,8 +45,9 @@ pub trait Emit {
     async fn get_token_config(&self) -> Vec<TokenConfig>;
     async fn get_orderbook_snapshot(&self, symbol: String, max_level: Option<u128>) -> Orderbook;
     async fn get_kline(&self, symbol: String, timeframe: Timeframe, limit: Option<u128>) -> Kline;
+    // Come back to this
     // async fn get_holdings(&self) -> String;
-    // async fn get_account_information(&self) -> String;
+    async fn get_account_information(&self) -> AccountInformation;
     // async fn get_token_deposit_address(&self, token: String) -> String;
     // async fn send_order(&self) -> String;
 }

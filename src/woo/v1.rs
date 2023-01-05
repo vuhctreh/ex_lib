@@ -2,11 +2,12 @@ use crate::woo::{Authenticate, Emit, Woo};
 use crate::woo::http::get_v1_no_auth;
 use async_trait::async_trait;
 use crate::woo::enums::Timeframe;
-use crate::woo::response::{ExchangeInformation, FundingRateHistory, Kline, Orderbook, ResponseWrapper, TokenConfig, TokenConfigWrapped};
+use crate::woo::response::{AccountInformation, ExchangeInformation, FundingRateHistory, Kline, Orderbook, ResponseWrapper, TokenConfig, TokenConfigWrapped};
 
 static V1_BASE_URL: &str = "https://api.woo.org/v1";
 
-//TODO enums for various symbols
+// TODO enums for various symbols
+// Possible to get rid of redundant code here?
 #[async_trait]
 impl Emit for Woo {
     async fn get_exchange_information(&self, symbol: String) -> ExchangeInformation {
@@ -83,17 +84,21 @@ impl Emit for Woo {
         }
     }
 
+    // Come back to this (return types)
     // async fn get_holdings(&self) -> String {
     //     let url: String = format!("{}/client/holding", V1_BASE_URL);
     //
     //     self.get_v1_auth(url, "".to_string()).await.unwrap()
     // }
     //
-    // async fn get_account_information(&self) -> String {
-    //     let url: String = format!("{}/client/info", V1_BASE_URL);
-    //
-    //     self.get_v1_auth(url, "".to_string()).await.unwrap()
-    // }
+    async fn get_account_information(&self) -> AccountInformation {
+        let url: String = format!("{}/client/info", V1_BASE_URL);
+
+        match self.get_v1_auth::<AccountInformation>(url, "".to_string()).await {
+            Ok(body) => body,
+            Err(e) => panic!("{:?}", e)
+        }
+    }
     //
     // async fn get_token_deposit_address(&self, token: String) -> String {
     //     let mut url: String = format!("{}/asset/deposit?", V1_BASE_URL);

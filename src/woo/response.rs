@@ -2,6 +2,8 @@ use serde::Deserialize;
 
 /// API is not consistent, some responses are wrapped like this,
 /// others aren't.
+/// TODO: Add a bunch of Options to this so I can use this instead of 50
+/// different wrappers
 #[derive(Debug, Deserialize)]
 pub struct ResponseWrapper<T> {
     pub success: bool,
@@ -103,4 +105,27 @@ pub struct KlineData {
     pub type_field: String,
     pub start_timestamp: i64,
     pub end_timestamp: i64,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct AccountInformation {
+    pub success: bool,
+    pub application: Application,
+    pub margin_rate: i64,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Application {
+    pub application_id: String,
+    pub account: String,
+    pub alias: String,
+    pub account_mode: String,
+    pub leverage: f64,
+    pub taker_fee_rate: f64,
+    pub maker_fee_rate: f64,
+    pub interest_rate: Option<f64>,
+    pub futures_leverage: f64,
+    pub futures_taker_fee_rate: f64,
+    pub futures_maker_fee_rate: f64,
+    pub otpauth: bool,
 }
