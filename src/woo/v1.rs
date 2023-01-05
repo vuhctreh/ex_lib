@@ -1,7 +1,7 @@
 use crate::woo::{Authenticate, Emit, Woo};
 use crate::woo::http::get_v1_no_auth;
 use async_trait::async_trait;
-use crate::woo::response::{ExchangeInformation, ResponseWrapper};
+use crate::woo::response::{ExchangeInformation, FundingRateHistory, ResponseWrapper};
 
 static V1_BASE_URL: &str = "https://api.woo.org/v1";
 
@@ -19,8 +19,7 @@ impl Emit for Woo {
         }
     }
 
-    // TODO error handling for get_v1_no_auth
-    async fn get_funding_rate_history(&self, symbol: String, start_t: Option<u128>, end_t: Option<u128>, page: Option<u128>) -> String {
+    async fn get_funding_rate_history(&self, symbol: String, start_t: Option<u128>, end_t: Option<u128>, page: Option<u128>) -> FundingRateHistory {
         let mut query: String = format!("{}/public/funding_rate_history?symbol={}", V1_BASE_URL, symbol);
 
         if start_t.is_some() {
@@ -35,7 +34,10 @@ impl Emit for Woo {
             query.push_str(&format!("&page={}", page.unwrap()));
         }
 
-        get_v1_no_auth(query).await.unwrap()
+        match get_v1_no_auth::<FundingRateHistory>(query).await {
+            Ok(body) => body,
+            Err(e) => panic!("{:?}", e)
+        }
     }
 
     async fn get_token_config(&self) -> String {
