@@ -18,5 +18,5 @@ async fn test() {
 
     let woo = client.to_woo();
 
-    println!("{}", woo.send_order().await);
+    println!("{:?}", woo.get_exchange_information("SPOT_BTC_USDT".to_string()).await.symbol);
 }
