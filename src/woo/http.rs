@@ -1,10 +1,11 @@
 use std::time::SystemTime;
 use reqwest::Client;
-use reqwest::header::{CACHE_CONTROL, CONTENT_LENGTH, CONTENT_TYPE, HeaderMap};
+use reqwest::header::{CACHE_CONTROL, CONTENT_TYPE, HeaderMap};
 use crate::woo::{Authenticate, Woo, WooAuth};
 use async_trait::async_trait;
+use serde::de::DeserializeOwned;
 
-pub async fn get_v1_no_auth(url: String) -> Result<String, reqwest::Error> {
+pub async fn get_v1_no_auth<T: DeserializeOwned>(url: String) -> Result<T, reqwest::Error> {
     let client: Client = Client::new();
 
     let mut header_map: HeaderMap = HeaderMap::new();
@@ -12,14 +13,14 @@ pub async fn get_v1_no_auth(url: String) -> Result<String, reqwest::Error> {
     header_map.insert(CONTENT_TYPE, "application/json".parse().unwrap());
     header_map.insert(CACHE_CONTROL, "no-cache".parse().unwrap());
 
-    let res = client.get(url)
+    let res: T = client.get(url)
         .headers(header_map)
         .send()
         .await?
-        .text()
+        .json()
         .await?;
 
-    Ok::<String, reqwest::Error>(res)
+    Ok::<T, reqwest::Error>(res)
 }
 
 //TODO: merge get and post into one with a match
