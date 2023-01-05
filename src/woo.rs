@@ -1,9 +1,11 @@
 mod auth;
 mod http;
 mod v1;
+mod response;
 
 use std::fmt::{Display, Formatter};
 use async_trait::async_trait;
+use crate::woo::response::{ExchangeInformation};
 
 /// Struct for interacting with the Woo Exchange
 pub struct Woo {
@@ -35,7 +37,7 @@ pub trait WooAuth {
 
 #[async_trait]
 pub trait Emit {
-    async fn get_exchange_information(&self, symbol: String) -> String;
+    async fn get_exchange_information(&self, symbol: String) -> ExchangeInformation;
     async fn get_funding_rate_history(&self, symbol: String, start_t: Option<u128>, end_t: Option<u128>, page: Option<u128>) -> String;
     async fn get_token_config(&self) -> String;
     async fn get_orderbook_snapshot(&self, symbol: String, max_level: Option<u128>) -> String;
