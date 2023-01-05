@@ -1,10 +1,11 @@
 use serde::Deserialize;
 
-// Can solve this with generics?
+/// API is not consistent, some responses are wrapped like this,
+/// others aren't.
 #[derive(Debug, Deserialize)]
-pub struct ResponseWrapper {
+pub struct ResponseWrapper<T> {
     pub success: bool,
-    pub info: ExchangeInformation
+    pub info: T
 }
 
 #[derive(Debug, Deserialize)]
