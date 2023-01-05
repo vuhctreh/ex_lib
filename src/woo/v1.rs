@@ -13,7 +13,7 @@ impl Emit for Woo {
     async fn get_exchange_information(&self, symbol: String) -> ExchangeInformation {
         let query: String = format!("{}/public/info/{}", V1_BASE_URL, symbol);
 
-        match get_v1_no_auth::<ResponseWrapper>(query).await {
+        match get_v1_no_auth::<ResponseWrapper<ExchangeInformation>>(query).await {
             Ok(body) => body.info,
             Err(e) => panic!("{:?}", e)
         }
