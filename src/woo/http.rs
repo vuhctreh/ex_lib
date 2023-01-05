@@ -24,7 +24,6 @@ pub async fn get_v1_no_auth<T: DeserializeOwned>(url: String) -> Result<T, reqwe
 }
 
 //TODO: merge get and post into one with a match
-
 #[async_trait]
 impl Authenticate for Woo {
     async fn get_v1_auth(&self, url: String, query: String) -> Result<String, reqwest::Error> {
