@@ -6,7 +6,7 @@ mod response;
 use std::fmt::{Display, Formatter};
 use async_trait::async_trait;
 use serde::de::DeserializeOwned;
-use crate::woo::response::{ExchangeInformation, FundingRateHistory, TokenConfig};
+use crate::woo::response::{ExchangeInformation, FundingRateHistory, Orderbook, TokenConfig};
 
 /// Struct for interacting with the Woo Exchange
 pub struct Woo {
@@ -41,7 +41,7 @@ pub trait Emit {
     async fn get_exchange_information(&self, symbol: String) -> ExchangeInformation;
     async fn get_funding_rate_history(&self, symbol: String, start_t: Option<u128>, end_t: Option<u128>, page: Option<u128>) -> FundingRateHistory;
     async fn get_token_config(&self) -> Vec<TokenConfig>;
-    // async fn get_orderbook_snapshot(&self, symbol: String, max_level: Option<u128>) -> String;
+    async fn get_orderbook_snapshot(&self, symbol: String, max_level: Option<u128>) -> Orderbook;
     // // Make timeframe an ENUM
     // async fn get_kline(&self, symbol: String, timeframe: String, limit: Option<u128>) -> String;
     // async fn get_holdings(&self) -> String;

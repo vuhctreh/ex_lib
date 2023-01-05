@@ -1,7 +1,7 @@
 use crate::woo::{Authenticate, Emit, Woo};
 use crate::woo::http::get_v1_no_auth;
 use async_trait::async_trait;
-use crate::woo::response::{ExchangeInformation, FundingRateHistory, ResponseWrapper, TokenConfig, TokenConfigWrapped};
+use crate::woo::response::{ExchangeInformation, FundingRateHistory, Orderbook, ResponseWrapper, TokenConfig, TokenConfigWrapped};
 
 static V1_BASE_URL: &str = "https://api.woo.org/v1";
 
@@ -48,19 +48,22 @@ impl Emit for Woo {
         }
     }
 
-    // async fn get_orderbook_snapshot(&self, symbol: String, max_level: Option<u128>) -> String {
-    //     let mut url: String = format!("{}/orderbook/{}?", V1_BASE_URL, symbol);
-    //
-    //     let mut query: String = "".to_string();
-    //
-    //     if max_level.is_some() {
-    //         query.push_str(&format!("max_level={}", max_level.unwrap()));
-    //     }
-    //
-    //     url.push_str(&query);
-    //
-    //     self.get_v1_auth(url, query).await.unwrap()
-    // }
+    async fn get_orderbook_snapshot(&self, symbol: String, max_level: Option<u128>) -> Orderbook {
+        let mut url: String = format!("{}/orderbook/{}?", V1_BASE_URL, symbol);
+
+        let mut query: String = "".to_string();
+
+        if max_level.is_some() {
+            query.push_str(&format!("max_level={}", max_level.unwrap()));
+        }
+
+        url.push_str(&query);
+
+        match self.get_v1_auth::<Orderbook>(url, query).await {
+            Ok(body) => body,
+            Err(e) => panic!("{:?}", e)
+        }
+    }
     //
     // // Make type an ENUM
     // async fn get_kline(&self, symbol: String, timeframe: String, limit: Option<u128>) -> String {

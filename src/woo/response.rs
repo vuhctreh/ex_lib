@@ -46,6 +46,8 @@ pub struct FundingRate {
     pub next_funding_time: i64,
 }
 
+/// API is not consistent, some responses are wrapped like this,
+/// others aren't.
 #[derive(Debug, Deserialize)]
 pub struct TokenConfigWrapped {
     pub success: bool,
@@ -62,4 +64,22 @@ pub struct TokenConfig {
     pub can_collateral: bool,
     pub can_short: bool,
     pub stable: bool,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Orderbook {
+    pub success: bool,
+    pub asks: Vec<Ask>,
+    pub bids: Vec<Bid>,
+    pub timestamp: i64,
+}
+
+#[derive(Debug, Deserialize)]pub struct Ask {
+    pub price: f64,
+    pub quantity: f64,
+}
+
+#[derive(Debug, Deserialize)]pub struct Bid {
+    pub price: f64,
+    pub quantity: f64,
 }
