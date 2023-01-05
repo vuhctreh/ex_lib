@@ -26,7 +26,7 @@ pub async fn get_v1_no_auth<T: DeserializeOwned>(url: String) -> Result<T, reqwe
 //TODO: merge get and post into one with a match
 #[async_trait]
 impl Authenticate for Woo {
-    async fn get_v1_auth(&self, url: String, query: String) -> Result<String, reqwest::Error> {
+    async fn get_v1_auth<T: DeserializeOwned>(&self, url: String, query: String) -> Result<T, reqwest::Error> {
         let client: Client = Client::new();
 
         let timestamp: u128  = SystemTime::now()
@@ -42,14 +42,14 @@ impl Authenticate for Woo {
         header_map.insert("x-api-signature", self.auth_v1(query, timestamp).parse().unwrap());
         header_map.insert("x-api-timestamp", timestamp.to_string().parse().unwrap());
 
-        let res = client.get(url)
+        let res: T = client.get(url)
             .headers(header_map)
             .send()
             .await?
-            .text()
+            .json()
             .await?;
 
-        Ok::<String, reqwest::Error>(res)
+        Ok::<T, reqwest::Error>(res)
     }
 
     async fn post_v1_auth(&self, url: String, query: String) -> Result<String, reqwest::Error> {
