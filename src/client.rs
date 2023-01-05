@@ -1,5 +1,5 @@
 use std::fmt::{Display, Formatter};
-use crate::woo::{Emit, Woo};
+use crate::woo::{ Woo };
 
 // TODO think of some methods here
 pub struct Client {
