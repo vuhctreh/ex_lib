@@ -2,7 +2,7 @@ use crate::woo::{Authenticate, Emit, Woo};
 use crate::woo::http::get_v1_no_auth;
 use async_trait::async_trait;
 use crate::woo::enums::Timeframe;
-use crate::woo::response::{AccountInformation, ExchangeInformation, FundingRateHistory, Kline, Orderbook, ResponseWrapper, TokenConfig, TokenConfigWrapped};
+use crate::woo::response::{AccountInformation, ExchangeInformation, FundingRateHistory, Kline, Orderbook, ResponseWrapper, TokenConfig, TokenConfigWrapped, TokenDepositAddress};
 
 static V1_BASE_URL: &str = "https://api.woo.org/v1";
 
@@ -90,7 +90,7 @@ impl Emit for Woo {
     //
     //     self.get_v1_auth(url, "".to_string()).await.unwrap()
     // }
-    //
+
     async fn get_account_information(&self) -> AccountInformation {
         let url: String = format!("{}/client/info", V1_BASE_URL);
 
@@ -99,16 +99,19 @@ impl Emit for Woo {
             Err(e) => panic!("{:?}", e)
         }
     }
-    //
-    // async fn get_token_deposit_address(&self, token: String) -> String {
-    //     let mut url: String = format!("{}/asset/deposit?", V1_BASE_URL);
-    //
-    //     let query: String = format!("token={}", token);
-    //
-    //     url.push_str(&query);
-    //
-    //     self.get_v1_auth(url, query).await.unwrap()
-    // }
+
+    async fn get_token_deposit_address(&self, token: String) -> TokenDepositAddress {
+        let mut url: String = format!("{}/asset/deposit?", V1_BASE_URL);
+
+        let query: String = format!("token={}", token);
+
+        url.push_str(&query);
+
+        match self.get_v1_auth::<TokenDepositAddress>(url, query).await {
+            Ok(body) => body,
+            Err(e) => panic!("{:?}", e)
+        }
+    }
     //
     // //TODO: make order type enums
     // async fn send_order(&self) -> String {

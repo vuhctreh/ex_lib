@@ -8,7 +8,7 @@ use std::fmt::{Display, Formatter};
 use async_trait::async_trait;
 use serde::de::DeserializeOwned;
 use crate::woo::enums::Timeframe;
-use crate::woo::response::{AccountInformation, ExchangeInformation, FundingRateHistory, Kline, Orderbook, TokenConfig};
+use crate::woo::response::{AccountInformation, ExchangeInformation, FundingRateHistory, Kline, Orderbook, TokenConfig, TokenDepositAddress};
 
 /// Struct for interacting with the Woo Exchange
 pub struct Woo {
@@ -48,7 +48,8 @@ pub trait Emit {
     // Come back to this
     // async fn get_holdings(&self) -> String;
     async fn get_account_information(&self) -> AccountInformation;
-    // async fn get_token_deposit_address(&self, token: String) -> String;
+    async fn get_token_deposit_address(&self, token: String) -> TokenDepositAddress;
+    // Broken need to fix but the docs aren't in line with the error I am getting
     // async fn send_order(&self) -> String;
 }
 

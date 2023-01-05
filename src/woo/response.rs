@@ -129,3 +129,10 @@ pub struct Application {
     pub futures_maker_fee_rate: f64,
     pub otpauth: bool,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct TokenDepositAddress {
+    pub success: bool,
+    pub address: String,
+    pub extra: String,
+}
