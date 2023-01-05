@@ -18,5 +18,5 @@ async fn test() {
 
     let woo = client.to_woo();
 
-    println!("{:?}", woo.get_exchange_information("SPOT_BTC_USDT".to_string()).await.symbol);
+    println!("{:?}", woo.get_funding_rate_history("PERP_BTC_USDT".to_string(), None, None, None).await);
 }
