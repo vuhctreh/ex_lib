@@ -29,7 +29,7 @@ impl Display for Woo {
     }
 }
 
-pub trait WooAuth {
+trait WooAuth {
     fn auth_v1(&self, query: String, timestamp: u128) -> String;
     #[allow(unused)]
     fn auth_v3(&self, query: String) -> String;
@@ -50,7 +50,7 @@ pub trait Emit {
 }
 
 #[async_trait]
-pub trait Authenticate {
+trait Authenticate {
     async fn get_v1_auth(&self, url: String, query: String) -> Result<String, reqwest::Error>;
     async fn post_v1_auth(&self, url: String, query: String) -> Result<String, reqwest::Error>;
 }
