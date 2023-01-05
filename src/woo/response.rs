@@ -9,6 +9,13 @@ pub struct ResponseWrapper<T> {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct Metadata {
+    total: i64,
+    records_per_page: i64,
+    current_page: i64,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct ExchangeInformation {
     pub symbol: String,
     pub quote_min: i64,
@@ -23,5 +30,18 @@ pub struct ExchangeInformation {
     pub updated_time: String,
 }
 
-// #[derive(Debug, Deserialize)]
-// pub struct FundingRateHistory
+#[derive(Debug, Deserialize)]
+pub struct FundingRateHistory {
+    pub success: bool,
+    pub meta: Metadata,
+    pub rows: Vec<FundingRate>,
+    pub timestamp: u64
+}
+
+#[derive(Debug, Deserialize)]
+pub struct FundingRate {
+    pub symbol: String,
+    pub funding_rate: f64,
+    pub funding_rate_timestamp: i64,
+    pub next_funding_time: i64,
+}
