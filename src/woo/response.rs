@@ -79,7 +79,28 @@ pub struct Orderbook {
     pub quantity: f64,
 }
 
-#[derive(Debug, Deserialize)]pub struct Bid {
+#[derive(Debug, Deserialize)]
+pub struct Bid {
     pub price: f64,
     pub quantity: f64,
+}
+
+#[derive(Debug, Deserialize)]pub struct Kline {
+    pub success: bool,
+    pub rows: Vec<KlineData>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct KlineData {
+    pub open: f64,
+    pub close: f64,
+    pub low: f64,
+    pub high: f64,
+    pub volume: f64,
+    pub amount: f64,
+    pub symbol: String,
+    #[serde(rename = "type")]
+    pub type_field: String,
+    pub start_timestamp: i64,
+    pub end_timestamp: i64,
 }
