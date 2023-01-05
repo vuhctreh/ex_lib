@@ -1,15 +1,13 @@
 use crate::woo::{Authenticate, Emit, Woo};
 use crate::woo::http::get_v1_no_auth;
 use async_trait::async_trait;
-use crate::woo::response::{ExchangeInformation, FundingRateHistory, ResponseWrapper};
+use crate::woo::response::{ExchangeInformation, FundingRateHistory, ResponseWrapper, TokenConfig, TokenConfigWrapped};
 
 static V1_BASE_URL: &str = "https://api.woo.org/v1";
 
 //TODO enums for various symbols
 #[async_trait]
 impl Emit for Woo {
-
-    //TODO make return type a serde struct at some point
     async fn get_exchange_information(&self, symbol: String) -> ExchangeInformation {
         let query: String = format!("{}/public/info/{}", V1_BASE_URL, symbol);
 
@@ -40,73 +38,76 @@ impl Emit for Woo {
         }
     }
 
-    async fn get_token_config(&self) -> String {
+    async fn get_token_config(&self) -> Vec<TokenConfig> {
 
         let url: String = format!("{}/client/token", V1_BASE_URL);
 
-        self.get_v1_auth(url, "".to_string()).await.unwrap()
-    }
-
-    async fn get_orderbook_snapshot(&self, symbol: String, max_level: Option<u128>) -> String {
-        let mut url: String = format!("{}/orderbook/{}?", V1_BASE_URL, symbol);
-
-        let mut query: String = "".to_string();
-
-        if max_level.is_some() {
-            query.push_str(&format!("max_level={}", max_level.unwrap()));
+        match self.get_v1_auth::<TokenConfigWrapped>(url, "".to_string()).await {
+            Ok(body) => body.rows,
+            Err(e) => panic!("{:?}", e)
         }
-
-        url.push_str(&query);
-
-        self.get_v1_auth(url, query).await.unwrap()
     }
 
-    // Make type an ENUM
-    async fn get_kline(&self, symbol: String, timeframe: String, limit: Option<u128>) -> String {
-        let mut url: String = format!("{}/kline?", V1_BASE_URL);
-
-        let mut query: String = format!("symbol={}&type={}", symbol, timeframe);
-
-        if limit.is_some() {
-            query.push_str(&format!("&limit={}", limit.unwrap()));
-        }
-
-        url.push_str(&query);
-
-        self.get_v1_auth(url, query).await.unwrap()
-    }
-
-    async fn get_holdings(&self) -> String {
-        let url: String = format!("{}/client/holding", V1_BASE_URL);
-
-        self.get_v1_auth(url, "".to_string()).await.unwrap()
-    }
-
-    async fn get_account_information(&self) -> String {
-        let url: String = format!("{}/client/info", V1_BASE_URL);
-
-        self.get_v1_auth(url, "".to_string()).await.unwrap()
-    }
-
-    async fn get_token_deposit_address(&self, token: String) -> String {
-        let mut url: String = format!("{}/asset/deposit?", V1_BASE_URL);
-
-        let query: String = format!("token={}", token);
-
-        url.push_str(&query);
-
-        self.get_v1_auth(url, query).await.unwrap()
-    }
-
-    //TODO: make order type enums
-    async fn send_order(&self) -> String {
-        let mut url: String = format!("{}/order?", V1_BASE_URL);
-
-        let query: String = "order_type=POST_ONLY&side=SELL&symbol=PERP_ETH_USDT".to_string();
-
-        url.push_str(&query);
-
-        self.post_v1_auth(url, query).await.unwrap()
-    }
+    // async fn get_orderbook_snapshot(&self, symbol: String, max_level: Option<u128>) -> String {
+    //     let mut url: String = format!("{}/orderbook/{}?", V1_BASE_URL, symbol);
+    //
+    //     let mut query: String = "".to_string();
+    //
+    //     if max_level.is_some() {
+    //         query.push_str(&format!("max_level={}", max_level.unwrap()));
+    //     }
+    //
+    //     url.push_str(&query);
+    //
+    //     self.get_v1_auth(url, query).await.unwrap()
+    // }
+    //
+    // // Make type an ENUM
+    // async fn get_kline(&self, symbol: String, timeframe: String, limit: Option<u128>) -> String {
+    //     let mut url: String = format!("{}/kline?", V1_BASE_URL);
+    //
+    //     let mut query: String = format!("symbol={}&type={}", symbol, timeframe);
+    //
+    //     if limit.is_some() {
+    //         query.push_str(&format!("&limit={}", limit.unwrap()));
+    //     }
+    //
+    //     url.push_str(&query);
+    //
+    //     self.get_v1_auth(url, query).await.unwrap()
+    // }
+    //
+    // async fn get_holdings(&self) -> String {
+    //     let url: String = format!("{}/client/holding", V1_BASE_URL);
+    //
+    //     self.get_v1_auth(url, "".to_string()).await.unwrap()
+    // }
+    //
+    // async fn get_account_information(&self) -> String {
+    //     let url: String = format!("{}/client/info", V1_BASE_URL);
+    //
+    //     self.get_v1_auth(url, "".to_string()).await.unwrap()
+    // }
+    //
+    // async fn get_token_deposit_address(&self, token: String) -> String {
+    //     let mut url: String = format!("{}/asset/deposit?", V1_BASE_URL);
+    //
+    //     let query: String = format!("token={}", token);
+    //
+    //     url.push_str(&query);
+    //
+    //     self.get_v1_auth(url, query).await.unwrap()
+    // }
+    //
+    // //TODO: make order type enums
+    // async fn send_order(&self) -> String {
+    //     let mut url: String = format!("{}/order?", V1_BASE_URL);
+    //
+    //     let query: String = "order_type=POST_ONLY&side=SELL&symbol=PERP_ETH_USDT".to_string();
+    //
+    //     url.push_str(&query);
+    //
+    //     self.post_v1_auth(url, query).await.unwrap()
+    // }
 }
 
