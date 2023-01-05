@@ -10,9 +10,9 @@ pub struct ResponseWrapper<T> {
 
 #[derive(Debug, Deserialize)]
 pub struct Metadata {
-    total: i64,
-    records_per_page: i64,
-    current_page: i64,
+    pub total: i64,
+    pub records_per_page: i64,
+    pub current_page: i64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -44,4 +44,22 @@ pub struct FundingRate {
     pub funding_rate: f64,
     pub funding_rate_timestamp: i64,
     pub next_funding_time: i64,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct TokenConfigWrapped {
+    pub success: bool,
+    pub rows: Vec<TokenConfig>
+}
+
+#[derive(Debug, Deserialize)]
+pub struct TokenConfig {
+    pub token: String,
+    pub collateral_ratio: f64,
+    pub margin_factor: f64,
+    pub futures_margin_factor: f64,
+    pub collateral: bool,
+    pub can_collateral: bool,
+    pub can_short: bool,
+    pub stable: bool,
 }
