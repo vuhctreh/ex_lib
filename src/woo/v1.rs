@@ -1,6 +1,7 @@
 use crate::woo::{Authenticate, Emit, Woo};
 use crate::woo::http::get_v1_no_auth;
 use async_trait::async_trait;
+use crate::woo::response::{ExchangeInformation, ResponseWrapper};
 
 static V1_BASE_URL: &str = "https://api.woo.org/v1";
 
@@ -9,11 +10,11 @@ static V1_BASE_URL: &str = "https://api.woo.org/v1";
 impl Emit for Woo {
 
     //TODO make return type a serde struct at some point
-    async fn get_exchange_information(&self, symbol: String) -> String {
+    async fn get_exchange_information(&self, symbol: String) -> ExchangeInformation {
         let query: String = format!("{}/public/info/{}", V1_BASE_URL, symbol);
 
-        match get_v1_no_auth(query).await {
-            Ok(body) => body,
+        match get_v1_no_auth::<ResponseWrapper>(query).await {
+            Ok(body) => body.info,
             Err(e) => panic!("{:?}", e)
         }
     }
