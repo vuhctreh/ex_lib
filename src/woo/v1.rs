@@ -112,16 +112,16 @@ impl Emit for Woo {
             Err(e) => panic!("{:?}", e)
         }
     }
-    //
-    // //TODO: make order type enums
-    // async fn send_order(&self) -> String {
-    //     let mut url: String = format!("{}/order?", V1_BASE_URL);
-    //
-    //     let query: String = "order_type=POST_ONLY&side=SELL&symbol=PERP_ETH_USDT".to_string();
-    //
-    //     url.push_str(&query);
-    //
-    //     self.post_v1_auth(url, query).await.unwrap()
-    // }
+
+    //TODO: make order type enums but more importantly fix
+    async fn send_order(&self) -> String {
+        let mut url: String = format!("{}/order?", V1_BASE_URL);
+
+        let query: String = "order_price=1200&order_quantity=1&order_type=POST_ONLY&side=SELL&symbol=PERP_ETH_USDT".to_string();
+
+        url.push_str(&query);
+
+        self.post_v1_auth(url, query).await.unwrap()
+    }
 }
 
