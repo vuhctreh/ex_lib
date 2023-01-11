@@ -1,6 +1,6 @@
 use std::time::SystemTime;
 use reqwest::Client;
-use reqwest::header::{CACHE_CONTROL, CONTENT_TYPE, HeaderMap};
+use reqwest::header::{CACHE_CONTROL, CONTENT_LENGTH, CONTENT_TYPE, HeaderMap, HeaderValue};
 use crate::woo::{Authenticate, Woo, WooAuth};
 use async_trait::async_trait;
 use serde::de::DeserializeOwned;
@@ -62,7 +62,8 @@ impl Authenticate for Woo {
 
         let mut header_map: HeaderMap = HeaderMap::new();
 
-        header_map.insert(CONTENT_TYPE, "application/json".parse().unwrap());
+        header_map.insert(CONTENT_TYPE, "application/x-www-form-urlencoded".parse().unwrap());
+        header_map.insert(CONTENT_LENGTH, HeaderValue::from(0));
         header_map.insert(CACHE_CONTROL, "no-cache".parse().unwrap());
         header_map.insert("x-api-key", self.key.parse().unwrap());
         header_map.insert("x-api-signature", self.auth_v1(query, timestamp).parse().unwrap());
