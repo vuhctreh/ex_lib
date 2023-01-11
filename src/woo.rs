@@ -49,8 +49,8 @@ pub trait Emit {
     // async fn get_holdings(&self) -> String;
     async fn get_account_information(&self) -> AccountInformation;
     async fn get_token_deposit_address(&self, token: String) -> TokenDepositAddress;
-    // Broken need to fix but the docs aren't in line with the error I am getting
-    // async fn send_order(&self) -> String;
+    //TODO: make order type enums, parameterise
+    async fn send_order(&self) -> String;
 }
 
 #[async_trait]
