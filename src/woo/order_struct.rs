@@ -17,8 +17,6 @@ impl <T: OrderTypes> Order<T> {
     }
 }
 
-// TO GET IT TO DO WHAT I WANT I PROBABLY NEED TO CREATE AND COMBINE MANY TRAITS
-
 pub trait OrderTypes {}
 
 pub trait Priceable {
@@ -53,21 +51,75 @@ impl NonPriceable for Market {
     }
 }
 
-pub struct IOC {}
+pub struct IOC {
+    price: f64,
+}
 
 impl OrderTypes for IOC {}
 
-pub struct FOK {}
+impl Priceable for IOC {
+    fn new(price: f64) -> Self {
+        IOC {
+            price
+        }
+    }
+}
+
+pub struct FOK {
+    pub price: f64,
+}
 
 impl OrderTypes for FOK {}
 
-pub struct PostOnly {}
+impl Priceable for FOK {
+    fn new(price: f64) -> Self {
+        FOK {
+            price
+        }
+    }
+}
+
+pub struct PostOnly {
+    pub price: f64,
+}
 
 impl OrderTypes for PostOnly {}
 
-pub struct Bid {}
+impl Priceable for PostOnly {
+    fn new(price: f64) -> Self {
+        PostOnly {
+            price
+        }
+    }
+}
+
+pub struct Ask {
+    pub price: f64,
+}
+
+impl OrderTypes for Ask {}
+
+impl Priceable for Ask {
+    fn new(price: f64) -> Self {
+        Ask {
+            price
+        }
+    }
+}
+
+pub struct Bid {
+    pub price: f64,
+}
 
 impl OrderTypes for Bid {}
+
+impl Priceable for Bid {
+    fn new(price: f64) -> Self {
+        Bid {
+            price
+        }
+    }
+}
 
 #[test]
 fn test_order_new() {
