@@ -1,7 +1,8 @@
 use crate::woo::{Authenticate, Emit, Woo};
 use crate::woo::http::get_v1_no_auth;
 use async_trait::async_trait;
-use crate::woo::enums::Timeframe;
+use crate::woo::enums::{Side, Timeframe};
+use crate::woo::order_struct::{Order, OrderTypes};
 use crate::woo::response::{AccountInformation, ExchangeInformation, FundingRateHistory, Kline, Orderbook, ResponseWrapper, TokenConfig, TokenConfigWrapped, TokenDepositAddress};
 
 static V1_BASE_URL: &str = "https://api.woo.org/v1";
@@ -113,8 +114,7 @@ impl Emit for Woo {
         }
     }
 
-    //TODO: make order type enums but more importantly fix
-    async fn send_order(&self) -> String {
+    async fn send_order<T: OrderTypes + Send>(&self, order: Order<T>) -> String {
         let mut url: String = format!("{}/order?", V1_BASE_URL);
 
         let query: String = "order_price=1200&order_quantity=1&order_type=POST_ONLY&side=SELL&symbol=PERP_ETH_USDT".to_string();

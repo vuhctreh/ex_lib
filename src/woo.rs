@@ -3,11 +3,13 @@ mod http;
 mod v1;
 mod response;
 pub mod enums;
+pub mod order_struct;
 
 use std::fmt::{Display, Formatter};
 use async_trait::async_trait;
 use serde::de::DeserializeOwned;
-use crate::woo::enums::Timeframe;
+use crate::woo::enums::{Side, Timeframe};
+use crate::woo::order_struct::{Order, OrderTypes};
 use crate::woo::response::{AccountInformation, ExchangeInformation, FundingRateHistory, Kline, Orderbook, TokenConfig, TokenDepositAddress};
 
 /// Struct for interacting with the Woo Exchange
@@ -50,7 +52,7 @@ pub trait Emit {
     async fn get_account_information(&self) -> AccountInformation;
     async fn get_token_deposit_address(&self, token: String) -> TokenDepositAddress;
     //TODO: make order type enums, parameterise
-    async fn send_order(&self) -> String;
+    async fn send_order<T: OrderTypes + Send>(&self, order: Order<T>) -> String;
 }
 
 #[async_trait]

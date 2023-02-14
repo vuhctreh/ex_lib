@@ -31,3 +31,8 @@ impl Display for Timeframe {
         }
     }
 }
+
+pub enum Side {
+    Sell,
+    Buy
+}
