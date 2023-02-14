@@ -114,6 +114,8 @@ impl Emit for Woo {
         }
     }
 
+    // TODO actually use the order struct to send orders xd
+    // and maybe move send_order to each struct and call with static dispatch?
     async fn send_order<T: OrderTypes + Send>(&self, order: Order<T>) -> String {
         let mut url: String = format!("{}/order?", V1_BASE_URL);
 

@@ -51,7 +51,6 @@ pub trait Emit {
     // async fn get_holdings(&self) -> String;
     async fn get_account_information(&self) -> AccountInformation;
     async fn get_token_deposit_address(&self, token: String) -> TokenDepositAddress;
-    //TODO: make order type enums, parameterise
     async fn send_order<T: OrderTypes + Send>(&self, order: Order<T>) -> String;
 }
 
