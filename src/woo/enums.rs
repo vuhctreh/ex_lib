@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt::{Display, Formatter};
 
 pub enum Timeframe {
     _1m,
@@ -15,7 +15,7 @@ pub enum Timeframe {
 }
 
 impl Display for Timeframe {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Timeframe::_1m => write!(f, "1m"),
             Timeframe::_5m => write!(f, "5m"),
@@ -32,7 +32,17 @@ impl Display for Timeframe {
     }
 }
 
+#[derive(Debug, PartialEq)]
 pub enum Side {
     Sell,
     Buy
+}
+
+impl Display for Side {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Side::Sell => write!(f, "{}", "SELL"),
+            Side::Buy => write!(f, "{}", "BUY")
+        }
+    }
 }

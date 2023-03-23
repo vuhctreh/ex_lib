@@ -1,131 +1,113 @@
+use std::fmt::{Display, Formatter};
 use crate::woo::enums::Side;
 
-pub struct Order<T: OrderTypes> {
+trait Params {
+    fn get_type() -> String;
+}
+
+trait Queryable {} // this trait is to be implemented for each Order generic type.
+
+struct Limit {
+    pub price: f64,
+    pub broker_id: Option<String>,
+    pub client_order_id: Option<i32>,
+    pub order_tag: Option<String>,
+    pub order_quantity: Option<i32>,
+    pub order_amount: Option<i32>,
+    pub reduce_only: Option<bool>,
+    pub visible_quantity: Option<i32>,
+}
+
+impl Limit {
+    pub fn builder(price: f64) -> Self {
+        Self { price,
+            broker_id: None,
+            client_order_id: None,
+            order_tag: None,
+            order_quantity: None,
+            order_amount: None,
+            reduce_only: None,
+            visible_quantity: None
+        }
+    }
+
+    pub fn set_broker_id(mut self, broker_id: String) -> Limit {
+        self.broker_id = Some(broker_id);
+        self
+    }
+
+    pub fn client_order_id(mut self, client_order_id: String) -> Limit {
+        self.broker_id = Some(client_order_id);
+        self
+    }
+
+    pub fn set_order_tag(mut self, order_tag: String) -> Limit {
+        self.order_tag = Some(order_tag);
+        self
+    }
+
+    pub fn set_order_quantity(mut self, order_quantity: i32) -> Limit {
+        self.order_quantity = Some(order_quantity);
+        self
+    }
+
+    pub fn set_order_amount(mut self, order_amount: i32) -> Limit {
+        self.order_amount = Some(order_amount);
+        self
+    }
+
+    pub fn set_reduce_only(mut self, reduce_only: bool) -> Limit {
+        self.reduce_only = Some(reduce_only);
+        self
+    }
+
+    pub fn set_visible_quantity(mut self, visible_quantity: i32) -> Limit {
+        self.visible_quantity = Some(visible_quantity);
+        self
+    }
+}
+
+impl Params for Limit {
+    fn get_type() -> String {
+        "LIMIT".to_string()
+    }
+}
+
+impl Display for Limit {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "LIMIT")
+    }
+}
+
+pub(crate) struct Order <T: Params> {
     symbol: String,
     side: Side,
-    order_type: T
+    order_type: String,
+    order_params: T
 }
 
-// TODO: MAKE ENUMS FOR EVERYTHING AND FINISH ALL THE IMPLS
-impl <T: OrderTypes> Order<T> {
-    pub(crate) fn new (symbol: String, side: Side, order_type: T) -> Self {
-        Order {
+impl <T: Params> Order <T> {
+    pub fn new(symbol: String, side: Side, order_params: T) -> Self {
+        Self {
             symbol,
             side,
-            order_type
+            order_type: T::get_type(),
+            order_params
         }
     }
 }
 
-pub trait OrderTypes {}
-
-pub trait Priceable {
-    fn new(_: f64) -> Self;
-}
-
-pub trait NonPriceable {
-    fn new() -> Self;
-}
-
-pub struct Limit {
-    price: f64,
-}
-
-impl Priceable for Limit {
-    fn new(price: f64) -> Self {
-        Limit {
-            price
-        }
-    }
-}
-
-impl OrderTypes for Limit {}
-
-pub struct Market {}
-
-impl OrderTypes for Market {}
-
-impl NonPriceable for Market {
-    fn new() -> Self {
-        Market {}
-    }
-}
-
-pub struct IOC {
-    price: f64,
-}
-
-impl OrderTypes for IOC {}
-
-impl Priceable for IOC {
-    fn new(price: f64) -> Self {
-        IOC {
-            price
-        }
-    }
-}
-
-pub struct FOK {
-    pub price: f64,
-}
-
-impl OrderTypes for FOK {}
-
-impl Priceable for FOK {
-    fn new(price: f64) -> Self {
-        FOK {
-            price
-        }
-    }
-}
-
-pub struct PostOnly {
-    pub price: f64,
-}
-
-impl OrderTypes for PostOnly {}
-
-impl Priceable for PostOnly {
-    fn new(price: f64) -> Self {
-        PostOnly {
-            price
-        }
-    }
-}
-
-pub struct Ask {
-    pub price: f64,
-}
-
-impl OrderTypes for Ask {}
-
-impl Priceable for Ask {
-    fn new(price: f64) -> Self {
-        Ask {
-            price
-        }
-    }
-}
-
-pub struct Bid {
-    pub price: f64,
-}
-
-impl OrderTypes for Bid {}
-
-impl Priceable for Bid {
-    fn new(price: f64) -> Self {
-        Bid {
-            price
-        }
+impl<T: Params> Display for Order<T> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}, {}, {}", &self.symbol, &self.side, T::get_type())
     }
 }
 
 #[test]
-fn test_order_new() {
-    let order_type = Limit::new(10.0);
+fn bruh_test() {
+    let limit_params: Limit = Limit::builder(10.0);
 
-    let order = Order::new("BTCUSD".to_string(), Side::Buy, order_type);
+    let order: Order<Limit> = Order::new("BTCUSDT".to_string(), Side::Buy, limit_params);
 
-    println!("{:?}", order.order_type.price);
+    println!("{}", order);
 }
