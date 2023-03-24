@@ -121,8 +121,7 @@ impl Emit for Woo {
 
         println!("{}", order.to_query_string());
 
-        // TODO: use the new order struct to build this
-        let query: String = "order_price=1200&order_quantity=1&order_type=POST_ONLY&side=SELL&symbol=PERP_ETH_USDT".to_string();
+        let query: String = order.to_query_string();
 
         url.push_str(&query);
 
