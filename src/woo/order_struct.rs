@@ -1,13 +1,15 @@
 use std::fmt::{Display, Formatter};
 use crate::woo::enums::Side;
 
-trait Params {
+pub trait Params {
     fn get_type() -> String;
 }
 
-trait Queryable {} // this trait is to be implemented for each Order generic type.
+pub trait Queryable {
+    fn to_query_string(&self) -> String;
+}
 
-struct Limit {
+pub struct Limit {
     pub price: f64,
     pub broker_id: Option<String>,
     pub client_order_id: Option<i32>,
@@ -19,6 +21,7 @@ struct Limit {
 }
 
 impl Limit {
+    // This isn't really a Builder, should I rename?
     pub fn builder(price: f64) -> Self {
         Self { price,
             broker_id: None,
@@ -79,7 +82,7 @@ impl Display for Limit {
     }
 }
 
-pub(crate) struct Order <T: Params> {
+pub struct Order <T: Params> {
     symbol: String,
     side: Side,
     order_type: String,
@@ -97,6 +100,13 @@ impl <T: Params> Order <T> {
     }
 }
 
+// Impl this properly (all fields, no Nones and in alphabetical order)
+impl Queryable for Order<Limit> {
+    fn to_query_string(&self) -> String {
+        format!("side={}&order_type={}", self.side, self.order_type)
+    }
+}
+
 impl<T: Params> Display for Order<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}, {}, {}", &self.symbol, &self.side, T::get_type())
@@ -109,5 +119,5 @@ fn bruh_test() {
 
     let order: Order<Limit> = Order::new("BTCUSDT".to_string(), Side::Buy, limit_params);
 
-    println!("{}", order);
+    println!("{}", order.to_query_string());
 }

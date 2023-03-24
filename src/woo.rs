@@ -9,7 +9,7 @@ use std::fmt::{Display, Formatter};
 use async_trait::async_trait;
 use serde::de::DeserializeOwned;
 use crate::woo::enums::{Side, Timeframe};
-use crate::woo::order_struct::{Order};
+use crate::woo::order_struct::{Order, Params, Queryable};
 use crate::woo::response::{AccountInformation, ExchangeInformation, FundingRateHistory, Kline, Orderbook, TokenConfig, TokenDepositAddress};
 
 /// Struct for interacting with the Woo Exchange
@@ -51,7 +51,7 @@ pub trait Emit {
     // async fn get_holdings(&self) -> String;
     async fn get_account_information(&self) -> AccountInformation;
     async fn get_token_deposit_address(&self, token: String) -> TokenDepositAddress;
-    async fn send_order<T: OrderTypes + Send>(&self, order: Order<T>) -> String;
+    async fn send_order<T: Queryable + Send>(&self, order: T) -> String;
 }
 
 #[async_trait]
