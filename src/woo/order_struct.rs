@@ -1,10 +1,13 @@
 use std::fmt::{Display, format, Formatter};
+use std::marker::PhantomData;
 use crate::woo::enums::Side;
 
 // So much duplicate code here find a way to clean this up.
 
 pub trait Params {
     fn get_type() -> String;
+    fn get_order_quantity(&self) -> i32;
+    fn get_price(&self) -> Option<f64>;
 }
 
 pub trait Queryable {
@@ -29,6 +32,14 @@ impl Params for Limit {
     fn get_type() -> String {
         "LIMIT".to_string()
     }
+
+    fn get_order_quantity(&self) -> i32 {
+        self.order_quantity
+    }
+
+    fn get_price(&self) -> Option<f64> {
+        Some(self.price)
+    }
 }
 
 impl Display for Limit {
@@ -52,6 +63,14 @@ impl Market {
 impl Params for Market {
     fn get_type() -> String {
         "MARKET".to_string()
+    }
+
+    fn get_order_quantity(&self) -> i32 {
+        self.order_quantity
+    }
+
+    fn get_price(&self) -> Option<f64> {
+        None
     }
 }
 
@@ -79,6 +98,14 @@ impl Params for IOC {
     fn get_type() -> String {
         "IOC".to_string()
     }
+
+    fn get_order_quantity(&self) -> i32 {
+        self.order_quantity
+    }
+
+    fn get_price(&self) -> Option<f64> {
+        Some(self.price)
+    }
 }
 
 impl Display for IOC {
@@ -104,6 +131,14 @@ impl FOK {
 impl Params for FOK {
     fn get_type() -> String {
         "FOK".to_string()
+    }
+
+    fn get_order_quantity(&self) -> i32 {
+        self.order_quantity
+    }
+
+    fn get_price(&self) -> Option<f64> {
+        Some(self.price)
     }
 }
 
@@ -131,6 +166,14 @@ impl Params for PostOnly {
     fn get_type() -> String {
         "POST_ONLY".to_string()
     }
+
+    fn get_order_quantity(&self) -> i32 {
+        self.order_quantity
+    }
+
+    fn get_price(&self) -> Option<f64> {
+        Some(self.price)
+    }
 }
 
 impl Display for PostOnly {
@@ -157,9 +200,17 @@ impl Params for Ask {
     fn get_type() -> String {
         "ASK".to_string()
     }
+
+    fn get_order_quantity(&self) -> i32 {
+        self.order_quantity
+    }
+
+    fn get_price(&self) -> Option<f64> {
+        Some(self.price)
+    }
 }
 
-impl Display for PostOnly {
+impl Display for Ask {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "ASK")
     }
@@ -183,6 +234,14 @@ impl Params for Bid {
     fn get_type() -> String {
         "BID".to_string()
     }
+
+    fn get_order_quantity(&self) -> i32 {
+        self.order_quantity
+    }
+
+    fn get_price(&self) -> Option<f64> {
+        Some(self.price)
+    }
 }
 
 impl Display for Bid {
@@ -203,27 +262,10 @@ pub struct Order <T: Params> {
     order_amount: Option<i32>,
     reduce_only: Option<bool>,
     visible_quantity: Option<i32>,
-    order_params: T
+    phantom: PhantomData<T>
 }
 
 impl <T: Params> Order <T> {
-    pub fn builder(symbol: String, side: Side, order_params: T) -> Self {
-        Self {
-            symbol,
-            side,
-            order_type: T::get_type(),
-            price: None,
-            broker_id: None,
-            client_order_id: None,
-            order_tag: None,
-            order_quantity: 0,
-            order_amount: None,
-            reduce_only: None,
-            visible_quantity: None,
-            order_params
-        }
-    }
-
     pub fn with_broker_id(mut self, broker_id: String) -> Order<T> {
         self.broker_id = Some(broker_id);
         self
@@ -260,194 +302,33 @@ impl <T: Params> Order <T> {
     }
 }
 
-pub trait Buildable {
-    fn build(self) -> Self;
-}
-
-impl Buildable for Order<Limit> {
-    fn build(mut self) -> Order<Limit> {
-        self.price = Some(self.order_params.price);
-        self.order_quantity = self.order_params.order_quantity;
-        self
+impl <T: Params> Order <T> {
+    pub fn new(symbol: String, side: Side, order_params: T) -> Self {
+        Self {
+            symbol,
+            side,
+            order_type: T::get_type(),
+            price: T::get_price(&order_params),
+            broker_id: None,
+            client_order_id: None,
+            order_tag: None,
+            order_quantity: T::get_order_quantity(&order_params),
+            order_amount: None,
+            reduce_only: None,
+            visible_quantity: None,
+            phantom: Default::default(),
+        }
     }
 }
 
-impl Buildable for Order<Market> {
-    fn build(mut self) -> Order<Market> {
-        self.order_quantity = self.order_params.order_quantity;
-        self
-    }
-}
-
-impl Buildable for Order<IOC> {
-    fn build(mut self) -> Order<IOC> {
-        self.price = Some(self.order_params.price);
-        self.order_quantity = self.order_params.order_quantity;
-        self
-    }
-}
-
-impl Buildable for Order<FOK> {
-    fn build(mut self) -> Order<FOK> {
-        self.price = Some(self.order_params.price);
-        self.order_quantity = self.order_params.order_quantity;
-        self
-    }
-}
-
-impl Buildable for Order<PostOnly> {
-    fn build(mut self) -> Order<PostOnly> {
-        self.price = Some(self.order_params.price);
-        self.order_quantity = self.order_params.order_quantity;
-        self
-    }
-}
-
-impl Queryable for Order<Limit> {
+impl <T: Params> Queryable for Order<T> {
     fn to_query_string(&self) -> String {
 
         let mut query = String::new();
 
         if self.broker_id.is_some() { query.push_str(&*format!("broker_id={}&", &self.broker_id.as_ref().unwrap())) }
         if self.client_order_id.is_some() { query.push_str(&*format!("client_order_id={}&", &self.client_order_id.as_ref().unwrap())) }
-        query.push_str(&*format!("order_price={}&", &self.price.unwrap()));
-        if self.order_amount.is_some() { query.push_str(&*format!("order_amount={}&", &self.order_amount.as_ref().unwrap())) }
-        query.push_str(&*format!("order_quantity={}&", &self.order_quantity));
-        if self.order_tag.is_some() { query.push_str(&*format!("order_tag={}&", &self.order_tag.as_ref().unwrap())) }
-        query.push_str(&*format!("order_type={}&", &self.order_type));
-        if self.reduce_only.is_some() { query.push_str(&*format!("reduce_only={}&", &self.reduce_only.as_ref().unwrap())) }
-        query.push_str(&*format!("side={}&", &self.side));
-        query.push_str(&*format!("symbol={}&", &self.symbol));
-        if self.visible_quantity.is_some() { query.push_str(&*format!("visible_quantity={}&", &self.visible_quantity.unwrap())) }
-
-        query.pop();
-
-        query
-    }
-}
-
-impl Queryable for Order<Market> {
-    fn to_query_string(&self) -> String {
-
-        let mut query = String::new();
-
-        if self.broker_id.is_some() { query.push_str(&*format!("broker_id={}&", &self.broker_id.as_ref().unwrap())) }
-        if self.client_order_id.is_some() { query.push_str(&*format!("client_order_id={}&", &self.client_order_id.as_ref().unwrap())) }
-        if self.order_amount.is_some() { query.push_str(&*format!("order_amount={}&", &self.order_amount.as_ref().unwrap())) }
-        query.push_str(&*format!("order_quantity={}&", &self.order_quantity));
-        if self.order_tag.is_some() { query.push_str(&*format!("order_tag={}&", &self.order_tag.as_ref().unwrap())) }
-        query.push_str(&*format!("order_type={}&", &self.order_type));
-        if self.reduce_only.is_some() { query.push_str(&*format!("reduce_only={}&", &self.reduce_only.as_ref().unwrap())) }
-        query.push_str(&*format!("side={}&", &self.side));
-        query.push_str(&*format!("symbol={}&", &self.symbol));
-        if self.visible_quantity.is_some() { query.push_str(&*format!("visible_quantity={}&", &self.visible_quantity.unwrap())) }
-
-        query.pop();
-
-        query
-    }
-}
-
-impl Queryable for Order<IOC> {
-    fn to_query_string(&self) -> String {
-
-        let mut query = String::new();
-
-        if self.broker_id.is_some() { query.push_str(&*format!("broker_id={}&", &self.broker_id.as_ref().unwrap())) }
-        if self.client_order_id.is_some() { query.push_str(&*format!("client_order_id={}&", &self.client_order_id.as_ref().unwrap())) }
-        query.push_str(&*format!("order_price={}&", &self.price.unwrap()));
-        if self.order_amount.is_some() { query.push_str(&*format!("order_amount={}&", &self.order_amount.as_ref().unwrap())) }
-        query.push_str(&*format!("order_quantity={}&", &self.order_quantity));
-        if self.order_tag.is_some() { query.push_str(&*format!("order_tag={}&", &self.order_tag.as_ref().unwrap())) }
-        query.push_str(&*format!("order_type={}&", &self.order_type));
-        if self.reduce_only.is_some() { query.push_str(&*format!("reduce_only={}&", &self.reduce_only.as_ref().unwrap())) }
-        query.push_str(&*format!("side={}&", &self.side));
-        query.push_str(&*format!("symbol={}&", &self.symbol));
-        if self.visible_quantity.is_some() { query.push_str(&*format!("visible_quantity={}&", &self.visible_quantity.unwrap())) }
-
-        query.pop();
-
-        query
-    }
-}
-
-impl Queryable for Order<FOK> {
-    fn to_query_string(&self) -> String {
-
-        let mut query = String::new();
-
-        if self.broker_id.is_some() { query.push_str(&*format!("broker_id={}&", &self.broker_id.as_ref().unwrap())) }
-        if self.client_order_id.is_some() { query.push_str(&*format!("client_order_id={}&", &self.client_order_id.as_ref().unwrap())) }
-        query.push_str(&*format!("order_price={}&", &self.price.unwrap()));
-        if self.order_amount.is_some() { query.push_str(&*format!("order_amount={}&", &self.order_amount.as_ref().unwrap())) }
-        query.push_str(&*format!("order_quantity={}&", &self.order_quantity));
-        if self.order_tag.is_some() { query.push_str(&*format!("order_tag={}&", &self.order_tag.as_ref().unwrap())) }
-        query.push_str(&*format!("order_type={}&", &self.order_type));
-        if self.reduce_only.is_some() { query.push_str(&*format!("reduce_only={}&", &self.reduce_only.as_ref().unwrap())) }
-        query.push_str(&*format!("side={}&", &self.side));
-        query.push_str(&*format!("symbol={}&", &self.symbol));
-        if self.visible_quantity.is_some() { query.push_str(&*format!("visible_quantity={}&", &self.visible_quantity.unwrap())) }
-
-        query.pop();
-
-        query
-    }
-}
-
-impl Queryable for Order<PostOnly> {
-    fn to_query_string(&self) -> String {
-
-        let mut query = String::new();
-
-        if self.broker_id.is_some() { query.push_str(&*format!("broker_id={}&", &self.broker_id.as_ref().unwrap())) }
-        if self.client_order_id.is_some() { query.push_str(&*format!("client_order_id={}&", &self.client_order_id.as_ref().unwrap())) }
-        query.push_str(&*format!("order_price={}&", &self.price.unwrap()));
-        if self.order_amount.is_some() { query.push_str(&*format!("order_amount={}&", &self.order_amount.as_ref().unwrap())) }
-        query.push_str(&*format!("order_quantity={}&", &self.order_quantity));
-        if self.order_tag.is_some() { query.push_str(&*format!("order_tag={}&", &self.order_tag.as_ref().unwrap())) }
-        query.push_str(&*format!("order_type={}&", &self.order_type));
-        if self.reduce_only.is_some() { query.push_str(&*format!("reduce_only={}&", &self.reduce_only.as_ref().unwrap())) }
-        query.push_str(&*format!("side={}&", &self.side));
-        query.push_str(&*format!("symbol={}&", &self.symbol));
-        if self.visible_quantity.is_some() { query.push_str(&*format!("visible_quantity={}&", &self.visible_quantity.unwrap())) }
-
-        query.pop();
-
-        query
-    }
-}
-
-impl Queryable for Order<Ask> {
-    fn to_query_string(&self) -> String {
-
-        let mut query = String::new();
-
-        if self.broker_id.is_some() { query.push_str(&*format!("broker_id={}&", &self.broker_id.as_ref().unwrap())) }
-        if self.client_order_id.is_some() { query.push_str(&*format!("client_order_id={}&", &self.client_order_id.as_ref().unwrap())) }
-        query.push_str(&*format!("order_price={}&", &self.price.unwrap()));
-        if self.order_amount.is_some() { query.push_str(&*format!("order_amount={}&", &self.order_amount.as_ref().unwrap())) }
-        query.push_str(&*format!("order_quantity={}&", &self.order_quantity));
-        if self.order_tag.is_some() { query.push_str(&*format!("order_tag={}&", &self.order_tag.as_ref().unwrap())) }
-        query.push_str(&*format!("order_type={}&", &self.order_type));
-        if self.reduce_only.is_some() { query.push_str(&*format!("reduce_only={}&", &self.reduce_only.as_ref().unwrap())) }
-        query.push_str(&*format!("side={}&", &self.side));
-        query.push_str(&*format!("symbol={}&", &self.symbol));
-        if self.visible_quantity.is_some() { query.push_str(&*format!("visible_quantity={}&", &self.visible_quantity.unwrap())) }
-
-        query.pop();
-
-        query
-    }
-}
-
-impl Queryable for Order<Bid> {
-    fn to_query_string(&self) -> String {
-
-        let mut query = String::new();
-
-        if self.broker_id.is_some() { query.push_str(&*format!("broker_id={}&", &self.broker_id.as_ref().unwrap())) }
-        if self.client_order_id.is_some() { query.push_str(&*format!("client_order_id={}&", &self.client_order_id.as_ref().unwrap())) }
-        query.push_str(&*format!("order_price={}&", &self.price.unwrap()));
+        if self.price.is_some() { query.push_str(&*format!("order_price={}&", &self.price.as_ref().unwrap())) }
         if self.order_amount.is_some() { query.push_str(&*format!("order_amount={}&", &self.order_amount.as_ref().unwrap())) }
         query.push_str(&*format!("order_quantity={}&", &self.order_quantity));
         if self.order_tag.is_some() { query.push_str(&*format!("order_tag={}&", &self.order_tag.as_ref().unwrap())) }
@@ -471,13 +352,11 @@ impl<T: Params> Display for Order<T> {
 
 #[test]
 fn bruh_test() {
-    let _limit_params: Limit = Limit::new(10.1, 10);
+    let market_params: Market = Market::new(10);
 
-    let _market_params: Market = Market::new(10);
-
-    let ioc_params: IOC = IOC::new(10.1, 10);
-
-    let order: Order<IOC> = Order::builder("EBJRAB".to_string(), Side::Buy, ioc_params).build();
+    let order: Order<Market> = Order::new("EBJRAB".to_string(), Side::Buy, market_params)
+        .with_client_order_id(123)
+        .with_broker_id("aezjkla".to_string());
 
     println!("{}", order.to_query_string());
 }
