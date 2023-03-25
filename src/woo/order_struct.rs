@@ -2,8 +2,6 @@ use std::fmt::{Display, format, Formatter};
 use std::marker::PhantomData;
 use crate::woo::enums::Side;
 
-// So much duplicate code here find a way to clean this up.
-
 pub trait Params {
     fn get_type() -> String;
     fn get_order_quantity(&self) -> i32;

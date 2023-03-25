@@ -46,3 +46,5 @@ impl Display for Side {
         }
     }
 }
+
+// TODO symbol enums
