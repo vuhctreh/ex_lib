@@ -10,7 +10,7 @@ use async_trait::async_trait;
 use serde::de::DeserializeOwned;
 use crate::woo::enums::{Side, Timeframe};
 use crate::woo::order_struct::{Order, Params, Queryable};
-use crate::woo::response::{AccountInformation, ExchangeInformation, FundingRateHistory, Kline, Orderbook, TokenConfig, TokenDepositAddress};
+use crate::woo::response::*;
 
 /// Struct for interacting with the Woo Exchange
 pub struct Woo {
@@ -51,7 +51,9 @@ pub trait Emit {
     // async fn get_holdings(&self) -> String;
     async fn get_account_information(&self) -> AccountInformation;
     async fn get_token_deposit_address(&self, token: String) -> TokenDepositAddress;
+    // TODO: Response type for send order
     async fn send_order<T: Queryable + Send>(&self, order: T) -> String;
+    async fn cancel_order(&self, order_id: String, symbol: String) -> Cancel;
 }
 
 #[async_trait]

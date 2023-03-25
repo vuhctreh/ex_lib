@@ -136,3 +136,9 @@ pub struct TokenDepositAddress {
     pub address: String,
     pub extra: String,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct Cancel {
+    pub success: bool,
+    pub status: String,
+}

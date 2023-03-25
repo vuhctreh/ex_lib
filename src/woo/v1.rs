@@ -3,7 +3,7 @@ use crate::woo::http::get_v1_no_auth;
 use async_trait::async_trait;
 use crate::woo::enums::{Side, Timeframe};
 use crate::woo::order_struct::{Order, Params, Queryable};
-use crate::woo::response::{AccountInformation, ExchangeInformation, FundingRateHistory, Kline, Orderbook, ResponseWrapper, TokenConfig, TokenConfigWrapped, TokenDepositAddress};
+use crate::woo::response::*;
 
 static V1_BASE_URL: &str = "https://api.woo.org/v1";
 
@@ -119,13 +119,24 @@ impl Emit for Woo {
     async fn send_order<T: Queryable + Send>(&self, order: T) -> String {
         let mut url: String = format!("{}/order?", V1_BASE_URL);
 
-        println!("{}", order.to_query_string());
-
         let query: String = order.to_query_string();
 
         url.push_str(&query);
 
         self.post_v1_auth(url, query).await.unwrap()
+    }
+
+    async fn cancel_order(&self, order_id: String, symbol: String) -> Cancel {
+        let mut url: String = format!("{}/order?", V1_BASE_URL);
+
+        let query: String = format!("order_id={}&symbol={}", order_id, symbol);
+
+        url.push_str(&query);
+
+        match self.get_v1_auth::<Cancel>(url, query).await {
+            Ok(body) => body,
+            Err(e) => panic!("{:?}", e)
+        }
     }
 }
 
